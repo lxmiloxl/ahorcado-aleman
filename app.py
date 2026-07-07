@@ -1,7 +1,9 @@
 import streamlit as st
 import random
+
 # Configuración inicial de la pestaña del navegador
 st.set_page_config(page_title="Ahorcado Alemán", page_icon="🇩🇪", layout="centered")
+
 # Base de datos de verbos
 verbos_db = [
     {"espanol": "Hornear", "infinitivo": "backen", "perfecto": "gebacken"},
@@ -69,64 +71,18 @@ verbos_db = [
     {"espanol": "Saber", "infinitivo": "wissen", "perfecto": "gewusst"},
     {"espanol": "Tirar/Mudar(se)", "infinitivo": "ziehen", "perfecto": "gezogen"}
 ]
+
+# Diseño clásico del ahorcado reescrito para evitar errores HTML de Streamlit/Portapapeles
 etapas_ahorcado = [
-    """
-    +---+
-    |   |
-    O   |
-   /|\\  |
-   / \\  |
-        |
-  =========
-    """,
-    """
-    +---+
-    |   |
-    O   |
-   /|\\  |
-   /    |
-        |
-  =========
-    """,
-    """
-    +---+
-    |   |
-    O   |
-   /|\\  |
-        |
-        |
-  =========
-    """,
-    """
-    +---+
-    |   |
-    O   |
-   /|   |
-        |
-        |
-  =========
-    """,
-    """
-    +---+
-    |   |
-
-O |
-| :--- |
-|
-| <br> ========= <br> """, <br> """ <br> +---+
-| :--- | <br> O   |
-|
-|
-| <br> ========= <br> """, <br> """ <br> +---+
-| :--- |
-|
-|
-|
-|
-
-  =========
-    """
+    "\n  +---+\n  |   |\n  O   |\n /|\\  |\n / \\  |\n      |\n=========",  # 0 intentos (Derrota)
+    "\n  +---+\n  |   |\n  O   |\n /|\\  |\n /    |\n      |\n=========",  # 1 intento
+    "\n  +---+\n  |   |\n  O   |\n /|\\  |\n      |\n      |\n=========",  # 2 intentos
+    "\n  +---+\n  |   |\n  O   |\n /|   |\n      |\n      |\n=========",  # 3 intentos
+    "\n  +---+\n  |   |\n  O   |\n  |   |\n      |\n      |\n=========",  # 4 intentos
+    "\n  +---+\n  |   |\n  O   |\n      |\n      |\n      |\n=========",  # 5 intentos
+    "\n  +---+\n  |   |\n      |\n      |\n      |\n      |\n========="   # 6 intentos (Inicio)
 ]
+
 # Inicialización de la memoria web (Session State)
 if 'juego_activo' not in st.session_state:
     st.session_state.racha = 0
@@ -137,6 +93,7 @@ if 'juego_activo' not in st.session_state:
     st.session_state.juego_activo = True
     st.session_state.mensaje = ""
     st.session_state.tipo_mensaje = ""
+
 def reiniciar_juego():
     st.session_state.verbo_actual = random.choice(verbos_db)
     st.session_state.modo = random.choice(["infinitivo", "perfecto"])
@@ -145,14 +102,19 @@ def reiniciar_juego():
     st.session_state.juego_activo = True
     st.session_state.mensaje = ""
     st.session_state.tipo_mensaje = ""
+
 # --- INTERFAZ VISUAL ---
 st.title("🇩🇪 Ahorcado Alemán A1")
+
 if st.session_state.racha >= 1:
     st.warning(f"★ **STREAK: {st.session_state.racha}** ★")
+
 # Crear dos columnas para diseño
 col1, col2 = st.columns([1, 2])
+
 with col1:
     st.code(etapas_ahorcado[st.session_state.intentos], language="text")
+
 with col2:
     objetivo_texto = "INFINITIVO" if st.session_state.modo == "infinitivo" else "PERFECTO (PARTIZIP II)"
     st.write(f"**OBJETIVO:** {objetivo_texto}")
@@ -168,6 +130,7 @@ with col2:
             palabra_mostrada += "_ "
             
     st.markdown(f"### {palabra_mostrada.strip()}")
+
 # Mensajes dinámicos
 if st.session_state.mensaje:
     if st.session_state.tipo_mensaje == "exito":
@@ -176,6 +139,7 @@ if st.session_state.mensaje:
         st.error(st.session_state.mensaje)
     else:
         st.info(st.session_state.mensaje)
+
 # Lógica del formulario de entrada
 if st.session_state.juego_activo:
     with st.form("entrada_form", clear_on_submit=True):
@@ -210,6 +174,7 @@ if st.session_state.juego_activo:
                     else:
                         st.session_state.mensaje = "¡Bien hecho!"
                         st.session_state.tipo_mensaje = "exito"
+
             # Verificar condiciones de victoria o derrota letra a letra
             letras_faltantes = [c for c in palabra_objetivo if c not in st.session_state.letras_adivinadas and c not in [' ', '/']]
             
@@ -223,7 +188,9 @@ if st.session_state.juego_activo:
                 st.session_state.racha = 0
                 st.session_state.mensaje = f"Sin intentos. La palabra era: {palabra_objetivo.upper()}"
                 st.session_state.tipo_mensaje = "error"
+
             st.rerun()
+
 # Revelación de contra-verbo y botón de Siguiente
 if not st.session_state.juego_activo:
     infinitivo = st.session_state.verbo_actual['infinitivo']
